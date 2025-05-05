@@ -3,7 +3,7 @@
 # Directorio base para los usuarios
 BASE_DIR="/home"
 FTP_USER_PREFIX="usuario"
-HTML_DIR="html_public"
+HTML_DIR="public_html"
 UPLOADS_DIR="uploads"
 DB_PREFIX="bd_"
 
@@ -14,6 +14,13 @@ NEW_USER="$FTP_USER_PREFIX$NEW_USER_NUM"
 
 # Generar una contraseña aleatoria
 PASSWORD=$(openssl rand -base64 12)
+
+# Eliminar usuario previo si existe (por ejemplo, usuario01)
+if id "$NEW_USER" &>/dev/null; then
+    echo "Eliminando el usuario existente $NEW_USER..."
+    sudo userdel -r "$NEW_USER"
+    echo "Usuario $NEW_USER eliminado."
+fi
 
 # Crear el usuario sin acceso SSH (-s /usr/sbin/nologin)
 sudo useradd -m -d "$BASE_DIR/$NEW_USER" -s /usr/sbin/nologin "$NEW_USER"
@@ -50,10 +57,14 @@ sudo chown $NEW_USER:$NEW_USER "$INFO_FILE"
 
 # Crear la base de datos para el usuario
 DB_NAME="${DB_PREFIX}${NEW_USER}"
-sudo mysql -e "CREATE DATABASE $DB_NAME;"
-sudo mysql -e "CREATE USER '$NEW_USER'@'localhost' IDENTIFIED BY '$PASSWORD';"
-sudo mysql -e "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER ON $DB_NAME.* TO '$NEW_USER'@'localhost';"
-sudo mysql -e "FLUSH PRIVILEGES;"
+if ! sudo mysql -e "USE $DB_NAME"; then
+    sudo mysql -e "CREATE DATABASE $DB_NAME;"
+    sudo mysql -e "CREATE USER '$NEW_USER'@'localhost' IDENTIFIED BY '$PASSWORD';"
+    sudo mysql -e "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER ON $DB_NAME.* TO '$NEW_USER'@'localhost';"
+    sudo mysql -e "FLUSH PRIVILEGES;"
+else
+    echo "La base de datos $DB_NAME ya existe."
+fi
 
 # Mostrar credenciales y resumen
 echo "=============================="
@@ -63,3 +74,4 @@ echo "Directorio web: $BASE_DIR/$NEW_USER/$HTML_DIR"
 echo "Base de datos: $DB_NAME"
 echo "Usuario de base de datos: $NEW_USER"
 echo "=============================="
+
