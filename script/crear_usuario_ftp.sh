@@ -64,6 +64,33 @@ sudo mysql -e "CREATE USER '$NEW_USER'@'localhost' IDENTIFIED BY '$PASSWORD';"
 sudo mysql -e "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER ON $DB_NAME.* TO '$NEW_USER'@'localhost';"
 sudo mysql -e "FLUSH PRIVILEGES;"
 
+# ===========================
+# NUEVO BLOQUE PARA PHPMyAdmin
+# ===========================
+
+# Crear carpeta de credenciales
+CRED_DIR="$BASE_DIR/$NEW_USER/credenciales"
+sudo mkdir -p "$CRED_DIR"
+
+# Crear archivo con credenciales en PHP
+CRED_FILE="$CRED_DIR/db_credentials.php"
+cat <<EOPHP | sudo tee "$CRED_FILE" > /dev/null
+<?php
+// Credenciales de acceso a la base de datos
+\$db_user = '$NEW_USER';
+\$db_pass = '$PASSWORD';
+\$db_name = '$DB_NAME';
+\$db_host = 'localhost';
+?>
+EOPHP
+
+# Asignar permisos adecuados al archivo
+sudo chown -R $NEW_USER:$NEW_USER "$CRED_DIR"
+sudo chmod 700 "$CRED_DIR"
+sudo chmod 600 "$CRED_FILE"
+
+# ===========================
+
 # Mostrar credenciales y resumen
 echo "=============================="
 echo "Usuario creado: $NEW_USER"
@@ -71,5 +98,7 @@ echo "Contraseña: $PASSWORD"
 echo "Directorio web: $BASE_DIR/$NEW_USER/$HTML_DIR"
 echo "Base de datos: $DB_NAME"
 echo "Usuario de base de datos: $NEW_USER"
+echo "Credenciales: $CRED_FILE"
+echo "phpMyAdmin: http://<IP_SERVIDOR>/phpmyadmin"
 echo "=============================="
 
