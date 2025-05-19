@@ -48,7 +48,8 @@ Revisar permisos de archivos y grupos. Modifica los permisos si es necesario par
 
 🖥️ Ejemplo de salida
 
-#==============================
+==============================
+
 Usuario creado: usuario04
 Contraseña: k4Jv9LpXqT5m
 Directorio web: /home/usuario04/public_html
@@ -56,7 +57,8 @@ Base de datos: bd_usuario04
 Usuario de base de datos: usuario04
 Credenciales: /home/usuario04/credenciales/db_credentials.php
 phpMyAdmin: http://<IP_SERVIDOR>/phpmyadmin
-#==============================
+
+==============================
 
 📚 Información del Proyecto
 Este script fue desarrollado como parte de un proyecto académico en la Universidad Politécnica Salesiana (UPS) - Quito, Ecuador, por:
